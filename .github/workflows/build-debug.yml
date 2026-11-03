@@ -19,10 +19,14 @@ jobs:
         run: |
           sed -i 's/applicationId = "io.github.mangi.eta"/applicationId = "io.github.mangi.eta.por"/' app/build.gradle.kts
           sed -i 's/io.github.mangi.eta.permission.CONTROL_ACCESSIBILITY_PROTECTION/${applicationId}.permission.CONTROL_ACCESSIBILITY_PROTECTION/g' app/src/main/AndroidManifest.xml
+          sed -i 's#io.github.mangi.eta.accessibility.health#${applicationId}.accessibility.health#g' app/src/main/AndroidManifest.xml
+          sed -i 's#android:taskAffinity="io.github.mangi.eta.virtualscreen"#android:taskAffinity="${applicationId}.virtualscreen"#g' app/src/main/AndroidManifest.xml
           echo "=== applicationId ==="
           grep -n 'applicationId' app/build.gradle.kts | head -3
-          echo "=== permission ==="
-          grep -n 'CONTROL_ACCESSIBILITY_PROTECTION' app/src/main/AndroidManifest.xml
+          echo "=== manifest key lines ==="
+          grep -nE 'authorities|CONTROL_ACCESSIBILITY_PROTECTION|taskAffinity' app/src/main/AndroidManifest.xml
+          echo "=== source refs to old authority ==="
+          grep -rn 'io.github.mangi.eta.accessibility.health' app/src --include=*.kt --include=*.java || true
       - name: Build debug
         run: ./gradlew --no-daemon --no-configuration-cache :app:assembleDebug
       - name: Upload APK
